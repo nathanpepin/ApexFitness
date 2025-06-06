@@ -1,0 +1,404 @@
+[
+  {
+    "name": "Micro Cycle 1",
+    "days": [
+      {
+        "name": "Push A",
+        "exercises": [
+          {
+            "name": "Cambered Bar Incline Bench Press",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Incline Dumbbell Press",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Pushup",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Lying Triceps Extension",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80,
+            "superset": true
+          },
+          {
+            "name": "Lying Dumbbell Curl",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Lateral Raise",
+            "sets": 3,
+            "setType": "Myo-rep match",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80,
+            "superset": true
+          },
+          {
+            "name": "Wrist Curls on Bench (EZ Bar)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          }
+        ]
+      },
+      {
+        "name": "Legs A",
+        "exercises": [
+          {
+            "name": "Squat",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Romanian Deadlift",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Bulgarian Split Squats (Smith Machine)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Leg Extensions (Machine)",
+            "sets": 3,
+            "setType": "Dropset",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Standing Calf Raises (Machine)",
+            "sets": 4,
+            "setType": "Dropset",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Raise Extension (Dumbbells)",
+            "sets": 3,
+            "setType": "Myo-rep match",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          }
+        ]
+      },
+      {
+        "name": "Pull A",
+        "exercises": [
+          {
+            "name": "Barbell Row",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80,
+            "superset": true
+          },
+          {
+            "name": "Shrugs (Trap Bar)",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Pull-Up",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Face Pulls with Rope (Cable)",
+            "sets": 3,
+            "setType": "Dropset",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Barbell Curl",
+            "sets": 3,
+            "setType": "Dropset",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Standing Calf Raises (Machine)",
+            "sets": 4,
+            "setType": "Dropset",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Lateral Raise",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          }
+        ]
+      },
+      {
+        "name": "Push B",
+        "exercises": [
+          {
+            "name": "Push Press (Barbell)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Shrugs (Barbell)",
+            "sets": 3,
+            "setType": "Myo-rep match",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Incline Dumbbell Press",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Dips (Bodyweight)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Cable Fly",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80,
+            "superset": true
+          },
+          {
+            "name": "Overhead Triceps Extensions (Cable)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Lateral Raises (Cable)",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          }
+        ]
+      },
+      {
+        "name": "Legs B",
+        "exercises": [
+          {
+            "name": "Deadlift",
+            "sets": 1,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Deficit Deadlifts (Trap Bar)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Leg Press (Machine)",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80,
+            "superset": true
+          },
+          {
+            "name": "Calf Raises on Leg Press (Machine)",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80,
+            "superset": false
+          },
+          {
+            "name": "Lying Leg Curls (Machine)",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Leg Extensions (Machine)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Glute Ham Raise",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          }
+        ]
+      },
+      {
+        "name": "Pull B",
+        "exercises": [
+          {
+            "name": "Pull-Ups with Close Overhand Grip",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Pendlay Rows (Barbell)",
+            "sets": 4,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80,
+            "superset": true
+          },
+          {
+            "name": "Shrugs (Barbell)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Rear Delt Flyes (Cable)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Curls (EZ Bar)",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          },
+          {
+            "name": "Gripper",
+            "sets": 3,
+            "setType": "Regular",
+            "intensityType": "rir",
+            "rir": 2,
+            "rpe": 8,
+            "percentage": 80
+          }
+        ]
+      }
+    ]
+  }
+]
