@@ -82,7 +82,8 @@ import {
 
 export default function WorkoutVolumeTracker() {
   // State definitions
-  const [darkMode, setDarkMode] = useState<boolean>(true);  const [cycles, setCycles] = useState<WorkoutWeek[]>(DEFAULT_CYCLES);
+  const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [cycles, setCycles] = useState<WorkoutWeek[]>(DEFAULT_CYCLES);
   const [currentCycleIndex, setCurrentCycleIndex] = useState<number>(0);
   const [jsonError, setJsonError] = useState<string>('');
   const [jsonSuccess, setJsonSuccess] = useState<string>('');
@@ -124,7 +125,9 @@ export default function WorkoutVolumeTracker() {
     if (!tabsCtx || !tabsCtx.active) return;
     const idx = Number(tabsCtx.active.replace('day-', ''));
     if (!isNaN(idx) && selectedDayTab !== idx) setSelectedDayTab(idx);
-  }, [tabsCtx && tabsCtx.active]);  // Effects
+  }, [tabsCtx && tabsCtx.active]);
+
+  // Effects
   useEffect(() => {
     // Load data from IndexedDB on first mount
     const loadData = async () => {
@@ -138,7 +141,7 @@ export default function WorkoutVolumeTracker() {
 
         setAllExercises(exercises.length > 0 ? exercises : DEFAULT_EXERCISES);
         setSavedRoutines(routines);
-        
+
         // If we have a selected routine, try to load it automatically
         if (selectedRoutine && routines.length > 0) {
           const foundRoutine = routines.find(r => r.name === selectedRoutine);
@@ -159,7 +162,7 @@ export default function WorkoutVolumeTracker() {
       } catch (error) {
         console.error('Failed to load data from IndexedDB:', error);
         displayAppMessage('error', 'Failed to load data from database');
-        
+
         // Use defaults on error
         setAllExercises(DEFAULT_EXERCISES);
         setSavedRoutines([]);
@@ -171,14 +174,16 @@ export default function WorkoutVolumeTracker() {
     };
 
     loadData();
-  }, []);useEffect(() => {
+  }, []);
+
+  useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
   useEffect(() => {
     // Save exercises to IndexedDB when they change (only after initial load)
     if (!isDataLoaded) return;
-    
+
     const saveData = async () => {
       try {
         await saveExercises(allExercises);
@@ -194,7 +199,7 @@ export default function WorkoutVolumeTracker() {
   useEffect(() => {
     // Save routines to IndexedDB when they change (only after initial load)
     if (!isDataLoaded) return;
-    
+
     const saveData = async () => {
       try {
         await saveRoutines(savedRoutines);
@@ -210,7 +215,7 @@ export default function WorkoutVolumeTracker() {
   useEffect(() => {
     // Save cycles to IndexedDB when they change (only after initial load)
     if (!isDataLoaded) return;
-    
+
     const saveData = async () => {
       try {
         await saveCycles(cycles);
@@ -222,10 +227,11 @@ export default function WorkoutVolumeTracker() {
 
     saveData();
   }, [cycles, isDataLoaded]);
+
   useEffect(() => {
     // Save selected routine name to IndexedDB when it changes (only after initial load)
     if (!isDataLoaded) return;
-    
+
     const saveData = async () => {
       try {
         await saveSelectedRoutineName(selectedRoutineName);
@@ -236,19 +242,20 @@ export default function WorkoutVolumeTracker() {
 
     saveData();
   }, [selectedRoutineName, isDataLoaded]);
+
   // Auto-load routine when selectedRoutineName changes (after initial load)
   useEffect(() => {
     if (!isDataLoaded || !selectedRoutineName) return;
-    
+
     const routine = savedRoutines.find(r => r.name === selectedRoutineName);
     if (routine) {
       // Only load if the current cycles don't match the selected routine
       const currentCyclesString = JSON.stringify(cycles);
       const routineCyclesString = JSON.stringify(routine.weeks);
-      
+
       if (currentCyclesString !== routineCyclesString) {
         setIsLoadingRoutine(true);
-        
+
         // Add a slight delay for better UX (show loading state)
         setTimeout(() => {
           setCycles(JSON.parse(JSON.stringify(routine.weeks)));
@@ -292,7 +299,7 @@ export default function WorkoutVolumeTracker() {
   const copyCycle = (cycleIndex: number) => {
     const cycleToCopy = cycles[cycleIndex];
     if (!cycleToCopy) return;
-    
+
     const copiedCycle: WorkoutWeek = {
       name: `${cycleToCopy.name} (Copy)`,
       days: cycleToCopy.days.map(day => ({
@@ -300,7 +307,7 @@ export default function WorkoutVolumeTracker() {
         exercises: day.exercises.map(ex => ({ ...ex }))
       }))
     };
-    
+
     setCycles(prev => [...prev, copiedCycle]);
     displayAppMessage('success', `Micro Cycle "${cycleToCopy.name}" copied successfully!`);
   };
@@ -317,12 +324,12 @@ export default function WorkoutVolumeTracker() {
   const copyDay = (dayIndex: number) => {
     const dayToCopy = days[dayIndex];
     if (!dayToCopy) return;
-    
+
     const copiedDay: WorkoutDay = {
       name: `${dayToCopy.name} (Copy)`,
       exercises: dayToCopy.exercises.map(ex => ({ ...ex }))
     };
-    
+
     setDays(prev => [...prev, copiedDay]);
     displayAppMessage('success', `Day "${dayToCopy.name}" copied successfully!`);
   };
@@ -330,9 +337,9 @@ export default function WorkoutVolumeTracker() {
   const copyExercise = (dayIndex: number, exIndex: number) => {
     const exerciseToCopy = days[dayIndex]?.exercises[exIndex];
     if (!exerciseToCopy) return;
-    
+
     const copiedExercise: WorkoutExercise = { ...exerciseToCopy };
-    
+
     setDays(prev => {
       const newDays = [...prev];
       newDays[dayIndex] = {
@@ -390,27 +397,29 @@ export default function WorkoutVolumeTracker() {
       // Update savedRoutines state
       const updatedRoutines = [...savedRoutines, newRoutine];
       setSavedRoutines(updatedRoutines);
-      
+
       // Auto-select the newly created routine
       setSelectedRoutineName(newRoutine.name);
-      
+
       // Save the updated routines to IndexedDB
       await saveRoutines(updatedRoutines);
-      
+
       // Save the selected routine name to IndexedDB
       await saveSelectedRoutineName(newRoutine.name);
-      
+
       setIsSaveRoutineModalOpen(false);
       displayAppMessage('success', `Routine "${newRoutine.name}" saved and selected!`);
     } catch (error) {
       console.error('Failed to save routine:', error);
       displayAppMessage('error', 'Failed to save routine');
-      
+
       // Revert state changes on error
       setSavedRoutines(savedRoutines);
       setSelectedRoutineName('');
     }
-  };  const handleDeleteSelectedRoutine = () => {
+  };
+
+  const handleDeleteSelectedRoutine = () => {
     setSavedRoutines(savedRoutines.filter(r => r.name !== selectedRoutineName));
     setSelectedRoutineName('');
     displayAppMessage('success', 'Routine deleted successfully!');
@@ -428,20 +437,20 @@ export default function WorkoutVolumeTracker() {
     }
 
     const newName = renameRoutineInput.trim();
-    
+
     // Check if the new name already exists (case insensitive, but exclude current routine)
     const routineExists = savedRoutines.some(r => 
       r.name.toLowerCase() === newName.toLowerCase() && 
       r.name !== selectedRoutineName
     );
-    
+
     if (routineExists) {
       displayAppMessage('error', 'A routine with this name already exists.');
       return;
     }
 
     const oldName = selectedRoutineName;
-    
+
     try {
       // Update the routine with the new name
       const updatedRoutines = savedRoutines.map(routine => 
@@ -449,21 +458,21 @@ export default function WorkoutVolumeTracker() {
           ? { ...routine, name: newName }
           : routine
       );
-      
+
       // Update state
       setSavedRoutines(updatedRoutines);
       setSelectedRoutineName(newName);
-      
+
       // Save to IndexedDB
       await saveRoutines(updatedRoutines);
       await saveSelectedRoutineName(newName);
-      
+
       setIsRenameRoutineModalOpen(false);
       displayAppMessage('success', `Routine renamed from "${oldName}" to "${newName}"!`);
     } catch (error) {
       console.error('Failed to rename routine:', error);
       displayAppMessage('error', 'Failed to rename routine');
-      
+
       // Revert state changes on error
       setSelectedRoutineName(oldName);
     }
@@ -473,7 +482,7 @@ export default function WorkoutVolumeTracker() {
     setEditingDayIndex(dayIndex);
     setCurrentEditingDayName(days[dayIndex].name);
   };
-  
+
   const handleSaveDayName = (dayIndex: number) => {
     if (!currentEditingDayName.trim()) {
       displayAppMessage('error', 'Day name cannot be empty.');
@@ -486,7 +495,7 @@ export default function WorkoutVolumeTracker() {
     setEditingDayIndex(null);
     setCurrentEditingDayName('');
   };
-  
+
   const handleCancelEditDayName = () => {
     setEditingDayIndex(null);
     setCurrentEditingDayName('');
@@ -550,7 +559,7 @@ export default function WorkoutVolumeTracker() {
     setDays(prev => {
       const newDays = [...prev];
       const currentExercise = newDays[dayIndex].exercises[exIndex];
-      
+
       newDays[dayIndex] = {
         ...newDays[dayIndex],
         exercises: newDays[dayIndex].exercises.map((ex, idx) => 
@@ -567,10 +576,11 @@ export default function WorkoutVolumeTracker() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {      try {
+    reader.onload = (e) => {
+      try {
         const content = e.target?.result as string;
         const parsed = JSON.parse(content);
-        
+
         // Handle backward compatibility - if it's an array of days, wrap it in a week
         if (Array.isArray(parsed)) {
           const validatedDays = parseWorkoutJson(parsed);
@@ -595,7 +605,7 @@ export default function WorkoutVolumeTracker() {
       }
     };
     reader.readAsText(file);
-    
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -626,7 +636,7 @@ export default function WorkoutVolumeTracker() {
   const exportToJson = () => {
     const dataStr = JSON.stringify({ weeks: cycles }, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+
     const exportFileDefaultName = 'workout-plan.json';
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
@@ -636,7 +646,7 @@ export default function WorkoutVolumeTracker() {
 
   // Computed values
   const cycleVolume = calculateVolume(days.flatMap((day) => day.exercises), allExercises);
-  
+
   const radarData: RadarDataPoint[] = useMemo(() => MUSCLE_GROUPS.map(muscle => ({
     subject: muscle,
     A: cycleVolume[muscle] || 0, 
@@ -646,7 +656,7 @@ export default function WorkoutVolumeTracker() {
 
   const exerciseOptionsForSelect: CategoryOption[] = useMemo(() => {
     const categoryMap: Record<string, Exercise[]> = {};
-    
+
     allExercises.forEach(exercise => {
       const category = exercise.category || 'Uncategorized';
       if (!categoryMap[category]) {
@@ -1250,7 +1260,7 @@ export default function WorkoutVolumeTracker() {
                                         })()}
                                       </div>
                                     </div>
-                                    
+
                                     <div className="flex flex-col gap-2 min-w-0">
                                       {/* Mobile: Stack all inputs vertically, Desktop: Two rows */}
                                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
@@ -1267,7 +1277,7 @@ export default function WorkoutVolumeTracker() {
                                             />
                                             <span className="text-xs text-muted-foreground whitespace-nowrap">sets</span>
                                           </div>
-                                            
+
                                           <Select 
                                             value={exercise.setType || 'Regular'} 
                                             onValueChange={(value) => updateExercise(dayIndex, exIndex, 'setType', value)}
@@ -1280,8 +1290,9 @@ export default function WorkoutVolumeTracker() {
                                                 <SelectItem key={type} value={type}>{type}</SelectItem>
                                               ))}
                                             </SelectContent>
-                                          </Select>                              </div>
-                                            
+                                          </Select>
+                                        </div>
+
                                         {/* Intensity Type Selection and Input */}
                                         <div className="flex items-center gap-2">
                                           <Select 
@@ -1300,14 +1311,15 @@ export default function WorkoutVolumeTracker() {
                                           >
                                             <SelectTrigger className="w-16 sm:w-20 text-sm">
                                               <SelectValue />
-                                            </SelectTrigger>                                  <SelectContent>
+                                            </SelectTrigger>
+                                            <SelectContent>
                                               <SelectItem value="rir">RIR</SelectItem>
                                               <SelectItem value="rpe">RPE</SelectItem>
                                               <SelectItem value="percentage">%</SelectItem>
                                               <SelectItem value="flow">🌊</SelectItem>
                                             </SelectContent>
                                           </Select>
-                                          
+
                                           {/* Conditional Input based on selected type */}
                                           {exercise.intensityType === 'rir' && (
                                             <div className="flex items-center gap-0.5">
@@ -1324,7 +1336,7 @@ export default function WorkoutVolumeTracker() {
                                               <span className="text-[10px] sm:text-xs text-muted-foreground">RIR</span>
                                             </div>
                                           )}
-                                          
+
                                           {exercise.intensityType === 'rpe' && (
                                             <div className="flex items-center gap-0.5">
                                               <Input
@@ -1340,7 +1352,7 @@ export default function WorkoutVolumeTracker() {
                                               <span className="text-[10px] sm:text-xs text-muted-foreground">RPE</span>
                                             </div>
                                           )}
-                                          
+
                                           {exercise.intensityType === 'percentage' && (
                                             <div className="flex items-center gap-0.5">
                                               <Input
@@ -1427,17 +1439,18 @@ export default function WorkoutVolumeTracker() {
                     Muscle Group Summary (Current Day)
                   </CardTitle>
                 </CardHeader>
-                <CardContent>                  <div className="flex flex-wrap gap-2">
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
                     {(() => {
                       // Use selectedDayTab to get the correct day
                       const dayExercises = days[selectedDayTab]?.exercises || [];
                       const dayVolume = calculateVolume(dayExercises, allExercises);
-                      
+
                       return MUSCLE_GROUPS.map(muscle => {
                         const volume = dayVolume[muscle] || 0;
                         const maxPossibleVolume = Math.max(...Object.values(dayVolume), 10); // Use max volume or minimum of 10
                         const contribution = Math.min(1.0, volume / maxPossibleVolume); // Normalize to 0-1 based on relative volume
-                        
+
                         return (
                           <MuscleGroupIcon 
                             key={muscle}
