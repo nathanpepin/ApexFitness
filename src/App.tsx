@@ -62,6 +62,13 @@ import { SimpleTooltip } from '@/components/ui/SimpleTooltip';
 import { transformWorkoutVolumeDataToRecommendations } from '@/utils';
 import { MuscleGroupIcon } from '@/components/ui/MuscleGroupIcon';
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabsContext } from './components/ui/tabs';
+import MicroCycleManagement from '@/components/MicroCycleManagement';
+import RoutineManagement from '@/components/RoutineManagement';
+import AppMessageDisplay from '@/components/AppMessageDisplay';
+import AppHeader from '@/components/AppHeader';
+import DayCard from '@/components/DayCard';
+import ExerciseRow from '@/components/ExerciseRow';
+import ImportExportCard from '@/components/ImportExportCard';
 
 import type { 
   Exercise, WorkoutExercise, WorkoutDay, WorkoutWeek, SavedRoutine, AppMessage, 
@@ -271,6 +278,10 @@ export default function WorkoutVolumeTracker() {
   const displayAppMessage = useCallback((type: 'success' | 'error', text: string) => {
     setAppMessage({ type, text });
     setTimeout(() => setAppMessage({ type: '', text: '' }), 4000);
+  }, []);
+
+  const clearAppMessage = useCallback(() => {
+    setAppMessage({ type: '', text: '' });
   }, []);
 
   // Helper function to get current micro cycle and days
@@ -800,16 +811,7 @@ export default function WorkoutVolumeTracker() {
               </Button>
             </div>
 
-            {/* App Message */}
-            {appMessage.text && (
-              <div className={`mb-4 p-3 rounded-lg ${
-                appMessage.type === 'success' 
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' 
-                  : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-              }`}>
-                {appMessage.text}
-              </div>
-            )}
+            <AppMessageDisplay message={appMessage} onClearMessage={clearAppMessage} />
 
             <ExercisesListPage 
               allExercises={allExercises}
@@ -868,77 +870,20 @@ export default function WorkoutVolumeTracker() {
             </div>
           </div>
 
-          {/* App Message */}
-          {appMessage.text && (
-            <div className={`p-3 rounded-lg ${
-              appMessage.type === 'success' 
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' 
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-            }`}>
-              {appMessage.text}
-            </div>
-          )}
+          <AppMessageDisplay message={appMessage} onClearMessage={clearAppMessage} />
 
           {/* Main Content */}
           <div className="flex flex-col lg:flex-row gap-6">            {/* Main workout area */}
             <div className="flex-1 space-y-6">
-              {/* Micro Cycle Navigation */}
-              <Card className="shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Micro Cycle Management
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col sm:flex-row gap-2 items-center">
-                    <div className="flex items-center gap-2 flex-1">
-                      <Button
-                        onClick={() => setCurrentCycleIndex(Math.max(0, currentCycleIndex - 1))}
-                        disabled={currentCycleIndex === 0}
-                        size="sm"
-                        variant="outline"
-                      >
-                        <ChevronUp className="w-4 h-4" />
-                      </Button>
-                      <span className="font-medium text-center min-w-[120px]">
-                        {currentCycle.name} ({currentCycleIndex + 1} of {cycles.length})
-                      </span>
-                      <Button
-                        onClick={() => setCurrentCycleIndex(Math.min(cycles.length - 1, currentCycleIndex + 1))}
-                        disabled={currentCycleIndex === cycles.length - 1}
-                        size="sm"
-                        variant="outline"
-                      >
-                        <ChevronDown className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={addCycle} size="sm">
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Micro Cycle
-                      </Button>
-                      <Button 
-                        onClick={() => copyCycle(currentCycleIndex)} 
-                        size="sm" 
-                        variant="outline"
-                      >
-                        <Copy className="w-4 h-4 mr-1" />
-                        Copy Micro Cycle
-                      </Button>
-                      <Button 
-                        onClick={() => deleteCycle(currentCycleIndex)} 
-                        size="sm" 
-                        variant="destructive"
-                        disabled={cycles.length <= 1}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete Micro Cycle
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Micro Cycle Management */}
+              <MicroCycleManagement
+                cycles={cycles}
+                currentCycleIndex={currentCycleIndex}
+                setCurrentCycleIndex={setCurrentCycleIndex}
+                onAddCycle={addCycle}
+                onDeleteCycle={deleteCycle}
+                onCopyCycle={copyCycle}
+              />
 
               {/* Routine Management */}
               <Card className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 dark:from-blue-800/20 dark:to-indigo-800/20 border-blue-500/20 shadow-lg">
