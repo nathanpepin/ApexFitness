@@ -82,9 +82,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="text-white hover:bg-gray-700 dark:hover:bg-gray-800">
               {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
-          </SimpleTooltip>
-          <SimpleTooltip content="Reset All Data">
-            <Button variant="destructive_outline" size="icon" onClick={onResetData} className="text-red-400 hover:bg-red-700 hover:text-white border-red-400">
+          </SimpleTooltip>          <SimpleTooltip content="Reset All Data">
+            <Button variant="destructive" size="icon" onClick={onResetData} className="text-red-400 hover:bg-red-700 hover:text-white border-red-400">
               <RotateCcw className="h-5 w-5" />
             </Button>
           </SimpleTooltip>

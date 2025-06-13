@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Upload, Trash2 } from 'lucide-react';
 
 interface ImportExportCardProps {
-  onImportClick: () => void;
+  onImportClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onExportClick: () => void;
   onResetClick: () => void;
   fileInputRef: React.RefObject<HTMLInputElement>;

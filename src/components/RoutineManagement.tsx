@@ -77,10 +77,9 @@ const RoutineManagement: React.FC<RoutineManagementProps> = ({
             </Button>
           </SimpleTooltip>
         </div>
-        <SimpleTooltip content="Delete Selected Routine">
-          <Button 
+        <SimpleTooltip content="Delete Selected Routine">          <Button 
             onClick={onDeleteSelectedRoutine} 
-            variant="destructive_outline"
+            variant="destructive"
             className="w-full"
             disabled={!selectedRoutineName || isLoadingRoutine}
           >

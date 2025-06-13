@@ -77,13 +77,12 @@ const ExerciseRow: React.FC<ExerciseRowProps> = React.memo(({
         >
           <SelectTrigger className="w-full bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 h-10">
             <SelectValue placeholder="Select exercise" />
-          </SelectTrigger>
-          <SelectContent className="max-h-[400px] bg-white dark:bg-gray-700">
+          </SelectTrigger>          <SelectContent className="max-h-[400px] bg-white dark:bg-gray-700">
             {exerciseOptions.map(category => (
               <React.Fragment key={category.name}>
                 <div className="px-2 py-1.5 text-sm font-semibold text-gray-500 dark:text-gray-400">{category.name}</div>
                 {category.exercises.map(ex => (
-                  <SelectItem key={ex.id} value={ex.name}>{ex.name}</SelectItem>
+                  <SelectItem key={ex.name} value={ex.name}>{ex.name}</SelectItem>
                 ))}
               </React.Fragment>
             ))}

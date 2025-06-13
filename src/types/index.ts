@@ -94,3 +94,7 @@ export type MuscleGroup =
 export type ExerciseCategory = 'Push' | 'Pull' | 'Legs' | 'Arms' | 'Full Body' | 'Uncategorized';
 
 export type ViewType = 'tracker' | 'exercises';
+
+export type SetType = 'Regular' | 'Dropset' | 'Myo-rep' | 'Myo-rep match';
+
+export type IntensityType = 'rir' | 'rpe' | 'percentage';
