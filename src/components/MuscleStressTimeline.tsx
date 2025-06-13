@@ -87,11 +87,11 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
   onClose,
   allExercises,
   days,
-}) => {
-  const [toggledMuscles, setToggledMuscles] = useState<Record<string, boolean>>({});
+}) => {  const [toggledMuscles, setToggledMuscles] = useState<Record<string, boolean>>({});
   const [numberOfCycles, setNumberOfCycles] = useState<number>(1);
   const [useFeltSets, setUseFeltSets] = useState<boolean>(true);
   const [isCumulativeMode, setIsCumulativeMode] = useState<boolean>(false); // New state for cumulative view
+  const [viewMode, setViewMode] = useState<'stress' | 'frequency'>('stress'); // New state for view mode
   const chartRef = useRef<ChartJS>(null);
   const microCycleLength = Math.max(7, days.length);
 
@@ -212,7 +212,6 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
 
     return dailyNewStimulusLookup;
   }, [allExercises, days, useFeltSets]); // muscleDefinitions is stable
-
   const getSfrCoverage = useCallback(() => {
     let totalExercises = 0;
     let exercisesWithSfr = 0;
@@ -232,8 +231,112 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
     return { totalExercises, exercisesWithSfr };
   }, [allExercises, days]);
 
+  const calculateDailySets = useCallback(() => {
+    const dailySetsLookup: Record<string, number[]> = {};
+    
+    muscleDefinitions.forEach(mDef => {
+      dailySetsLookup[mDef.name] = Array(days.length).fill(0);
+    });
+
+    days.forEach((day, dayIndex) => {
+      day.exercises.forEach(exercisePerformed => {
+        // Enhanced exercise finding with fallbacks
+        let exerciseInfo = allExercises.find(e => e.name === exercisePerformed.name);
+        
+        // Fallback 1: Case-insensitive search
+        if (!exerciseInfo) {
+          exerciseInfo = allExercises.find(e => 
+            e.name.toLowerCase() === exercisePerformed.name.toLowerCase()
+          );
+        }
+        
+        // Fallback 2: Trim whitespace and try again
+        if (!exerciseInfo) {
+          exerciseInfo = allExercises.find(e => 
+            e.name.trim().toLowerCase() === exercisePerformed.name.trim().toLowerCase()
+          );
+        }
+        
+        if (exerciseInfo && exerciseInfo.muscles) {
+          for (const muscleName in exerciseInfo.muscles) {
+            if (dailySetsLookup[muscleName]) {
+              const factor = exerciseInfo.muscles[muscleName];
+              const sets = exercisePerformed.sets;
+              
+              // For frequency view, we count actual sets (not felt sets)
+              const effectiveSets = sets * factor;
+              dailySetsLookup[muscleName][dayIndex] += effectiveSets;
+            }
+          }
+        }
+      });
+    });
+
+    return dailySetsLookup;
+  }, [allExercises, days]);
+
 
   const generateChartData = () => {
+    if (viewMode === 'frequency') {
+      return generateFrequencyChartData();
+    } else {
+      return generateStressChartData();
+    }
+  };
+
+  const generateFrequencyChartData = () => {
+    const dailySets = calculateDailySets();
+
+    const labels = Array.from({ length: totalDaysToPlot }, (_, i) => {
+      const dayNumber = (i % microCycleLength) + 1;
+      const cycleNumber = Math.floor(i / microCycleLength) + 1;
+      return numberOfCycles > 1 ? `C${cycleNumber} D${dayNumber}` : `Day ${dayNumber}`;
+    });
+
+    const datasets: any[] = [];
+
+    if (isCumulativeMode && musclesToPlot.length > 0) {
+      const cumulativeData = Array(totalDaysToPlot).fill(0);
+      musclesToPlot.forEach(muscleName => {
+        for (let day = 0; day < totalDaysToPlot; day++) {
+          const dayInCycle = day % microCycleLength;
+          const setsToday = dayInCycle < days.length ? (dailySets[muscleName]?.[dayInCycle] || 0) : 0;
+          cumulativeData[day] += setsToday;
+        }
+      });
+
+      datasets.push({
+        type: 'bar' as const,
+        label: `Total Sets (${musclesToPlot.length} muscle${musclesToPlot.length === 1 ? '' : 's'})`,
+        data: cumulativeData,
+        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 1,
+      });
+    } else {
+      musclesToPlot.forEach((muscleName, index) => {
+        const frequencyData = Array(totalDaysToPlot).fill(0);
+        for (let day = 0; day < totalDaysToPlot; day++) {
+          const dayInCycle = day % microCycleLength;
+          const setsToday = dayInCycle < days.length ? (dailySets[muscleName]?.[dayInCycle] || 0) : 0;
+          frequencyData[day] = setsToday;
+        }
+
+        datasets.push({
+          type: 'bar' as const,
+          label: `${muscleName} Sets`,
+          data: frequencyData,
+          backgroundColor: `${muscleColors[muscleName] || `hsl(${(index * 137.5) % 360}, 65%, 50%)`}70`,
+          borderColor: muscleColors[muscleName] || `hsl(${(index * 137.5) % 360}, 65%, 50%)`,
+          borderWidth: 1,
+        });
+      });
+    }
+
+    return { labels, datasets };
+  };
+
+  const generateStressChartData = () => {
     const dailyStimulus = calculateDailyStimulus();
     // totalDaysToPlot is already memoized and available in this scope
 
@@ -310,8 +413,7 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
 
     return { labels, datasets };
   };
-  
-  const chartOptions = {
+    const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
@@ -323,8 +425,9 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Stress Level (Arbitrary Units)',
+          text: viewMode === 'frequency' ? 'Sets Completed' : 'Stress Level (Arbitrary Units)',
         },
+        stacked: viewMode === 'frequency' && !isCumulativeMode && musclesToPlot.length > 1,
       },
       x: {
         title: {
@@ -336,6 +439,7 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
           // Corrected: Access totalDaysToPlot from the outer scope where it's defined
           maxTicksLimit: totalDaysToPlot > 30 ? Math.min(Math.floor(totalDaysToPlot / 2), 30) : totalDaysToPlot,
         },
+        stacked: viewMode === 'frequency' && !isCumulativeMode && musclesToPlot.length > 1,
       },
     },
     plugins: {
@@ -352,7 +456,11 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
               label += ': ';
             }
             if (context.parsed.y !== null) {
-              label += context.parsed.y.toFixed(2);
+              const value = viewMode === 'frequency' ? Math.round(context.parsed.y * 10) / 10 : context.parsed.y.toFixed(2);
+              label += value;
+              if (viewMode === 'frequency') {
+                label += ' sets';
+              }
             }
             return label;
           },
@@ -373,9 +481,8 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
       },
     },
   };
-  
-  const sfrCoverage = useMemo(() => getSfrCoverage(), [getSfrCoverage]);
-  const chartData = useMemo(() => generateChartData(), [musclesToPlot, numberOfCycles, microCycleLength, calculateDailyStimulus, useFeltSets, isCumulativeMode, totalDaysToPlot]); // Added isCumulativeMode and totalDaysToPlot
+    const sfrCoverage = useMemo(() => getSfrCoverage(), [getSfrCoverage]);
+  const chartData = useMemo(() => generateChartData(), [musclesToPlot, numberOfCycles, microCycleLength, calculateDailyStimulus, calculateDailySets, useFeltSets, isCumulativeMode, totalDaysToPlot, viewMode]); // Added viewMode and calculateDailySets
 
   const singleSelectedMuscleThruToggle = !isCumulativeMode && musclesToPlot.length === 1 ? musclesToPlot[0] as MuscleGroup : undefined;
 
@@ -417,39 +524,57 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
             ) : (
               <div className="w-5 h-5 rounded bg-gradient-to-r from-blue-500 to-purple-500" />
             )}
-            {isCumulativeMode && musclesToPlot.length > 0 ? `Cumulative Stress (${musclesToPlot.length} muscle${musclesToPlot.length === 1 ? '' : 's'})` : 'Muscle Stress & Recovery Timeline'}
-          </DialogTitle>
-          <DialogDescription>
-            Visualize how training stress accumulates and decays over time for different muscle groups.
-            {useFeltSets && (
+            {isCumulativeMode && musclesToPlot.length > 0 ? (
+              viewMode === 'frequency' ? `Total Sets (${musclesToPlot.length} muscle${musclesToPlot.length === 1 ? '' : 's'})` : `Cumulative Stress (${musclesToPlot.length} muscle${musclesToPlot.length === 1 ? '' : 's'})`
+            ) : (
+              viewMode === 'frequency' ? 'Exercise Frequency Timeline' : 'Muscle Stress & Recovery Timeline'
+            )}
+          </DialogTitle>          <DialogDescription>
+            {viewMode === 'frequency' 
+              ? 'Visualize the number of sets completed for each muscle group on each day.'
+              : 'Visualize how training stress accumulates and decays over time for different muscle groups.'
+            }
+            {viewMode === 'stress' && useFeltSets && (
               <Badge variant="secondary" className="ml-2">
                 Using Felt Sets (SFR Applied)
               </Badge>
             )}
-            {useFeltSets && sfrCoverage.exercisesWithSfr < sfrCoverage.totalExercises && (
+            {viewMode === 'stress' && useFeltSets && sfrCoverage.exercisesWithSfr < sfrCoverage.totalExercises && (
               <Badge variant="outline" className="ml-2 text-yellow-600">
                 SFR Coverage: {sfrCoverage.exercisesWithSfr}/{sfrCoverage.totalExercises} exercises
               </Badge>
             )}
           </DialogDescription>
-        </DialogHeader>
-
-        {/* Controls: Number of cycles, felt sets toggle, view mode */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-end">
+        </DialogHeader>        {/* Controls: View mode, Number of cycles, felt sets toggle, cumulative mode */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-end">
+          <div>
+            <label htmlFor="viewMode" className="block text-sm font-medium text-muted-foreground mb-1">View Mode</label>
+            <Select value={viewMode} onValueChange={(value: 'stress' | 'frequency') => setViewMode(value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stress">Stress & Recovery</SelectItem>
+                <SelectItem value="frequency">Exercise Frequency</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div>
             <label htmlFor="numCycles" className="block text-sm font-medium text-muted-foreground mb-1">Number of Micro Cycles</label>
             <Input id="numCycles" type="number" value={numberOfCycles} onChange={(e) => setNumberOfCycles(Math.max(1, parseInt(e.target.value) || 1))} className="w-full" />
           </div>
-          <Button onClick={() => setUseFeltSets(!useFeltSets)} variant="outline" className="self-end">
-            {useFeltSets ? 'Using Felt Sets (SFR)' : 'Using Actual Sets'}
-            {useFeltSets && sfrCoverage.totalExercises > 0 && (
-              <span className="ml-1.5 text-xs opacity-70">
-                ({sfrCoverage.exercisesWithSfr}/{sfrCoverage.totalExercises} exercises with SFR)
-              </span>
-            )}
-          </Button>
+          {viewMode === 'stress' && (
+            <Button onClick={() => setUseFeltSets(!useFeltSets)} variant="outline" className="self-end">
+              {useFeltSets ? 'Using Felt Sets (SFR)' : 'Using Actual Sets'}
+              {useFeltSets && sfrCoverage.totalExercises > 0 && (
+                <span className="ml-1.5 text-xs opacity-70">
+                  ({sfrCoverage.exercisesWithSfr}/{sfrCoverage.totalExercises} exercises with SFR)
+                </span>
+              )}
+            </Button>
+          )}
           <Button onClick={() => setIsCumulativeMode(!isCumulativeMode)} variant="outline" className="self-end">
-            {isCumulativeMode ? 'Show Individual Lines' : 'Show Cumulative Stress'}
+            {isCumulativeMode ? 'Show Individual' : (viewMode === 'frequency' ? 'Show Total Sets' : 'Show Cumulative')}
           </Button>
         </div>
 
@@ -498,13 +623,17 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
             </div>
           </div>
         )}
-        
-        <div className="relative h-[50vh] min-h-[300px] sm:min-h-[400px] p-2 border rounded-lg shadow-inner bg-background/30">
+          <div className="relative h-[50vh] min-h-[300px] sm:min-h-[400px] p-2 border rounded-lg shadow-inner bg-background/30">
           {chartData && chartData.datasets.length > 0 ? (
-            <Chart ref={chartRef} type="line" data={chartData} options={chartOptions as any} />
+            <Chart 
+              ref={chartRef} 
+              type={viewMode === 'frequency' ? 'bar' : 'line'} 
+              data={chartData} 
+              options={chartOptions as any} 
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-              {musclesWithExercises.size === 0 ? "No exercise data found for the current routine." : "Select muscles to display their stress timelines."}
+              {musclesWithExercises.size === 0 ? "No exercise data found for the current routine." : "Select muscles to display their timelines."}
             </div>
           )}
         </div>
