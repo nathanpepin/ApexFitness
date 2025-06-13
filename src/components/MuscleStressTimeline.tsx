@@ -94,19 +94,61 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
   const totalDaysToPlot = useMemo(() => numberOfCycles * microCycleLength, [numberOfCycles, microCycleLength]);
 
   const getMusclesWithExercises = useCallback(() => {
+    console.log('🔍 getMusclesWithExercises called');
+    console.log('📊 Days:', days.length, 'days');
+    console.log('🏋️ All exercises:', allExercises.length, 'exercises');
+    
     const currentMusclesWithExercises = new Set<string>();
-    days.forEach(day => {
+    days.forEach((day, dayIndex) => {
+      console.log(`📅 Day ${dayIndex} (${day.name}):`, day.exercises.length, 'exercises');
       day.exercises.forEach(exercisePerformed => {
-        const exerciseInfo = allExercises.find(e => e.name === exercisePerformed.name);
+        console.log(`  🏃 Looking for: "${exercisePerformed.name}" (length: ${exercisePerformed.name.length})`);
+        
+        // Debug: log all available exercise names for comparison
+        if (dayIndex === 0 && allExercises.length > 0) {
+          console.log('📋 Available exercise names (first 5):');
+          allExercises.slice(0, 5).forEach((ex, i) => {
+            console.log(`    ${i}: "${ex.name}" (length: ${ex.name.length})`);
+          });
+        }
+        
+        // Enhanced exercise finding with fallbacks
+        let exerciseInfo = allExercises.find(e => e.name === exercisePerformed.name);
+        
+        // Fallback 1: Case-insensitive search
+        if (!exerciseInfo) {
+          exerciseInfo = allExercises.find(e => 
+            e.name.toLowerCase() === exercisePerformed.name.toLowerCase()
+          );
+          if (exerciseInfo) {
+            console.log(`⚠️ Found exercise via case-insensitive match: "${exercisePerformed.name}" -> "${exerciseInfo.name}"`);
+          }
+        }
+        
+        // Fallback 2: Trim whitespace and try again
+        if (!exerciseInfo) {
+          exerciseInfo = allExercises.find(e => 
+            e.name.trim().toLowerCase() === exercisePerformed.name.trim().toLowerCase()
+          );
+          if (exerciseInfo) {
+            console.log(`⚠️ Found exercise after trimming: "${exercisePerformed.name}" -> "${exerciseInfo.name}"`);
+          }
+        }
+        
+        console.log(`  ✅ Found: ${exerciseInfo ? 'YES' : 'NO'}`);
+        
         if (exerciseInfo && exerciseInfo.muscles) {
+          console.log('  💪 Muscles:', Object.keys(exerciseInfo.muscles));
           Object.keys(exerciseInfo.muscles).forEach(muscle => {
             if (muscleDefinitions.find(m => m.name === muscle)) {
               currentMusclesWithExercises.add(muscle);
+              console.log(`    ➕ Added muscle: ${muscle}`);
             }
           });
         }
       });
     });
+    console.log('🎯 Final muscles with exercises:', Array.from(currentMusclesWithExercises));
     return currentMusclesWithExercises;
   }, [allExercises, days]); // muscleDefinitions is stable
 
@@ -149,6 +191,11 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
 
 
   const calculateDailyStimulus = useCallback(() => {
+    console.log('🔍 MuscleStressTimeline - calculateDailyStimulus called');
+    console.log('📊 Days data:', days);
+    console.log('🏋️ All exercises count:', allExercises.length);
+    console.log('🎯 Sample exercises:', allExercises.slice(0, 3));
+    
     const dailyNewStimulusLookup: Record<string, number[]> = {};
     
     muscleDefinitions.forEach(mDef => {
@@ -156,8 +203,33 @@ export const MuscleStressTimeline: React.FC<MuscleStressTimelineProps> = ({
     });
 
     days.forEach((day, dayIndex) => {
-      day.exercises.forEach(exercisePerformed => {
-        const exerciseInfo = allExercises.find(e => e.name === exercisePerformed.name);
+      console.log(`📅 Processing day ${dayIndex}:`, day.name, 'with', day.exercises.length, 'exercises');      day.exercises.forEach(exercisePerformed => {
+        console.log('🏃 Looking for exercise:', exercisePerformed.name);
+        
+        // Enhanced exercise finding with fallbacks
+        let exerciseInfo = allExercises.find(e => e.name === exercisePerformed.name);
+        
+        // Fallback 1: Case-insensitive search
+        if (!exerciseInfo) {
+          exerciseInfo = allExercises.find(e => 
+            e.name.toLowerCase() === exercisePerformed.name.toLowerCase()
+          );
+          if (exerciseInfo) {
+            console.log(`⚠️ Found exercise via case-insensitive match: "${exercisePerformed.name}" -> "${exerciseInfo.name}"`);
+          }
+        }
+        
+        // Fallback 2: Trim whitespace and try again
+        if (!exerciseInfo) {
+          exerciseInfo = allExercises.find(e => 
+            e.name.trim().toLowerCase() === exercisePerformed.name.trim().toLowerCase()
+          );
+          if (exerciseInfo) {
+            console.log(`⚠️ Found exercise after trimming: "${exercisePerformed.name}" -> "${exerciseInfo.name}"`);
+          }
+        }
+        
+        console.log('✅ Found exercise info:', exerciseInfo ? 'YES' : 'NO', exerciseInfo?.name);
         if (exerciseInfo && exerciseInfo.muscles) {
           for (const muscleName in exerciseInfo.muscles) {
             if (dailyNewStimulusLookup[muscleName]) {
