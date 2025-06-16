@@ -360,11 +360,28 @@ export default function WorkoutVolumeTracker() {
       return newDays;
     });
     displayAppMessage('success', 'Exercise copied successfully!');
-  };
-  const openSaveRoutineModal = useCallback(() => {
+  };  const openSaveRoutineModal = useCallback(() => {
     setNewRoutineNameInput('');
     setIsSaveRoutineModalOpen(true);
   }, []);
+
+  const handleCreateNewRoutine = useCallback(() => {
+    // Clear current routine selection
+    setSelectedRoutineName('');
+    
+    // Reset to a basic single micro cycle with one empty day
+    const newEmptyRoutine: WorkoutWeek[] = [{
+      name: 'Micro Cycle 1',
+      days: [{
+        name: 'Day 1',
+        exercises: []
+      }]
+    }];
+    
+    setCycles(newEmptyRoutine);
+    setCurrentCycleIndex(0);
+    displayAppMessage('success', 'New routine created! Start adding exercises to build your workout.');
+  }, [displayAppMessage]);
   const handleSaveCurrentRoutine = useCallback(async () => {
     if (selectedRoutineName) {
       // If a routine is selected, overwrite it directly
@@ -897,6 +914,14 @@ export default function WorkoutVolumeTracker() {
                     <Button onClick={handleSaveCurrentRoutine} className="flex-1 sm:flex-none">
                       <Save className="w-4 h-4 mr-2" />
                       {selectedRoutineName ? `Update "${selectedRoutineName}"` : 'Save Current'}
+                    </Button>
+                    <Button 
+                      onClick={handleCreateNewRoutine} 
+                      variant="outline" 
+                      className="flex-1 sm:flex-none"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Routine
                     </Button>
                     <div className="flex flex-col flex-1 gap-1">
                       <Select value={selectedRoutineName} onValueChange={setSelectedRoutineName}>
